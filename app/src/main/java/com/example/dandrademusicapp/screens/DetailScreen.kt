@@ -30,7 +30,7 @@ import com.example.dandrademusicapp.network.RetrofitInstance
 import com.example.dandrademusicapp.ui.theme.*
 
 @Composable
-fun DetailScreen(albumId: Int, onBack: () -> Unit) {
+fun DetailScreen(albumId: String, onBack: () -> Unit) {
     var album by remember { mutableStateOf<Album?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -40,7 +40,7 @@ fun DetailScreen(albumId: Int, onBack: () -> Unit) {
             album = RetrofitInstance.api.getAlbumById(albumId)
             isLoading = false
         } catch (e: Exception) {
-            error = "Error al cargar el álbum"
+            error = e.message ?: e.toString()
             isLoading = false
         }
     }
@@ -80,7 +80,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             .background(Color(0xFFF5F0FC))
             .padding(padding)
     ) {
-        // ── Header con imagen y scrim morado ──
         item {
             Box(
                 modifier = Modifier
@@ -93,7 +92,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                // Scrim morado
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -106,7 +104,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
                             )
                         )
                 )
-                // Fila con botón atrás y favorito
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,7 +125,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
                         )
                     }
                 }
-                // Título, artista y botones play/shuffle
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -147,7 +143,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
                     )
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        // Botón Play
                         Box(
                             modifier = Modifier
                                 .size(42.dp)
@@ -162,7 +157,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        // Botón Shuffle (usando PlayArrow como reemplazo)
                         Box(
                             modifier = Modifier
                                 .size(42.dp)
@@ -182,7 +176,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             }
         }
 
-        // ── About this album ──
         item {
             Card(
                 modifier = Modifier
@@ -210,7 +203,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             }
         }
 
-        // ── Chip Artista ──
         item {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -231,7 +223,6 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             Spacer(Modifier.height(8.dp))
         }
 
-        // ── Lista de 10 canciones ──
         items(tracks) { trackTitle ->
             TrackItem(
                 imageUrl = album.image,

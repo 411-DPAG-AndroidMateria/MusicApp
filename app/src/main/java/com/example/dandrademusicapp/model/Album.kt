@@ -1,17 +1,12 @@
 package com.example.dandrademusicapp.model
 
-import kotlinx.serialization.Serializable
+import com.google.gson.annotations.SerializedName
 
 data class Album(
-    val id: Int,
-    val title: String,
-    val artist: String,
-    val description: String,
-    val image: String,
-    val genre: String? = null
-)
-
-@Serializable
-data class AlbumNav(
-    val id: Int
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("artist") val artist: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("image") val image: String,
+    @SerializedName("genre") val genre: String? = null
 )

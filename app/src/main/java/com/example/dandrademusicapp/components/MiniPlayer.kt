@@ -35,7 +35,6 @@ fun MiniPlayer(album: Album?) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Imagen mini
             AsyncImage(
                 model = album?.image ?: "",
                 contentDescription = null,
@@ -44,10 +43,7 @@ fun MiniPlayer(album: Album?) {
                     .size(44.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
-
             Spacer(Modifier.width(12.dp))
-
-            // Título y artista
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = album?.title ?: "Sin reproducción",
@@ -64,8 +60,6 @@ fun MiniPlayer(album: Album?) {
                     maxLines = 1
                 )
             }
-
-            // Botón play/pause
             Box(
                 modifier = Modifier
                     .size(36.dp)
