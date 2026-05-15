@@ -19,11 +19,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.dandrademusicapp.components.MiniPlayer
 import com.example.dandrademusicapp.model.Album
 import com.example.dandrademusicapp.network.RetrofitInstance
@@ -49,29 +51,20 @@ fun DetailScreen(albumId: String, onBack: () -> Unit) {
         bottomBar = { MiniPlayer(album = album) }
     ) { padding ->
         when {
-            isLoading -> Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MusicPurple)
             }
-            error != null -> Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(error!!, color = Color.Red)
             }
-            album != null -> DetailContent(
-                album = album!!,
-                onBack = onBack,
-                padding = padding
-            )
+            album != null -> DetailContent(album = album!!, onBack = onBack, padding = padding)
         }
     }
 }
 
 @Composable
 private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValues) {
+    val context = LocalContext.current
     val tracks = (1..10).map { i -> "${album.title} • Track $i" }
 
     LazyColumn(
@@ -80,137 +73,83 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             .background(Color(0xFFF5F0FC))
             .padding(padding)
     ) {
+        // Header con imagen
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
                 AsyncImage(
-                    model = album.image,
+                    model = ImageRequest.Builder(context)
+                        .data(album.imageUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = album.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    MusicPurpleDark.copy(alpha = 0.45f),
-                                    MusicPurple.copy(alpha = 0.85f)
-                                )
+                    modifier = Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MusicPurpleDark.copy(alpha = 0.45f),
+                                MusicPurple.copy(alpha = 0.85f)
                             )
                         )
+                    )
                 )
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Regresar",
-                            tint = Color.White
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Regresar", tint = Color.White)
                     }
                     IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = "Favorito",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Filled.Favorite, contentDescription = "Favorito", tint = Color.White)
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = album.title,
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp
-                    )
-                    Text(
-                        text = album.artist,
-                        color = Color.White.copy(alpha = 0.85f),
-                        fontSize = 14.sp
-                    )
+                Column(modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)) {
+                    Text(album.title, color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 22.sp)
+                    Text(album.artist, color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(MusicPurple),
+                            modifier = Modifier.size(42.dp).clip(CircleShape).background(MusicPurple),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                Icons.Filled.PlayArrow,
-                                contentDescription = "Play",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
+                            Icon(Icons.Filled.PlayArrow, contentDescription = "Play",
+                                tint = Color.White, modifier = Modifier.size(24.dp))
                         }
                         Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.2f)),
+                            modifier = Modifier.size(42.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                Icons.Filled.PlayArrow,
-                                contentDescription = "Shuffle",
-                                tint = Color.White,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            Icon(Icons.Filled.PlayArrow, contentDescription = "Shuffle",
+                                tint = Color.White, modifier = Modifier.size(22.dp))
                         }
                     }
                 }
             }
         }
 
+        // About this album
         item {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        "About this album",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = TextOnLight
-                    )
+                    Text("About this album", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextOnLight)
                     Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = album.description,
-                        color = TextSubtle,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp
-                    )
+                    Text(album.description, color = TextSubtle, fontSize = 13.sp, lineHeight = 20.sp)
                 }
             }
         }
 
+        // Chip artista
         item {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MusicPurpleLight
-                ) {
+            Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                Surface(shape = RoundedCornerShape(20.dp), color = MusicPurpleLight) {
                     Text(
                         "Artist: ${album.artist}",
                         color = MusicPurple,
@@ -223,12 +162,9 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
             Spacer(Modifier.height(8.dp))
         }
 
+        // 10 canciones
         items(tracks) { trackTitle ->
-            TrackItem(
-                imageUrl = album.image,
-                title = trackTitle,
-                artist = album.artist
-            )
+            TrackItem(imageUrl = album.imageUrl, title = trackTitle, artist = album.artist)
         }
 
         item { Spacer(Modifier.height(8.dp)) }
@@ -237,49 +173,33 @@ private fun DetailContent(album: Album, onBack: () -> Unit, padding: PaddingValu
 
 @Composable
 fun TrackItem(imageUrl: String, title: String, artist: String) {
+    val context = LocalContext.current
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
+            modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = imageUrl,
+                model = ImageRequest.Builder(context)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                modifier = Modifier.size(44.dp).clip(RoundedCornerShape(8.dp))
             )
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.sp,
-                    color = TextOnLight,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = artist,
-                    color = TextSubtle,
-                    fontSize = 12.sp
-                )
+                Text(title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
+                    color = TextOnLight, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(artist, color = TextSubtle, fontSize = 12.sp)
             }
-            Icon(
-                Icons.Filled.MoreVert,
-                contentDescription = null,
-                tint = TextSubtle
-            )
+            Icon(Icons.Filled.MoreVert, contentDescription = null, tint = TextSubtle)
         }
     }
 }

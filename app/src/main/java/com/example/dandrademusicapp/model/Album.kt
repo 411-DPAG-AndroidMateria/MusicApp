@@ -9,4 +9,7 @@ data class Album(
     @SerializedName("description") val description: String,
     @SerializedName("image") val image: String,
     @SerializedName("genre") val genre: String? = null
-)
+) {
+    val imageUrl: String
+        get() = "https://wsrv.nl/?url=${image}&w=400&output=jpg"
+}

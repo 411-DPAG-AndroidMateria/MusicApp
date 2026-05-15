@@ -13,11 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.dandrademusicapp.model.Album
 import com.example.dandrademusicapp.ui.theme.MusicDarkBg
 
@@ -36,7 +38,10 @@ fun MiniPlayer(album: Album?) {
             modifier = Modifier.fillMaxWidth()
         ) {
             AsyncImage(
-                model = album?.image ?: "",
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(album?.imageUrl ?: "")
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

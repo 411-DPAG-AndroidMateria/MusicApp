@@ -21,11 +21,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.dandrademusicapp.components.MiniPlayer
 import com.example.dandrademusicapp.model.Album
 import com.example.dandrademusicapp.network.RetrofitInstance
@@ -71,7 +73,7 @@ fun HomeScreen(onAlbumClick: (String) -> Unit) {
                 .background(MusicPurpleLight)
                 .padding(padding)
         ) {
-            // ── Header ──
+            // Header
             item {
                 Box(
                     modifier = Modifier
@@ -85,47 +87,28 @@ fun HomeScreen(onAlbumClick: (String) -> Unit) {
                         .padding(horizontal = 20.dp, vertical = 24.dp)
                 ) {
                     Column(modifier = Modifier.align(Alignment.BottomStart)) {
-                        Text(
-                            "Good Morning!",
-                            color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            "Diana Andrade",
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
+                        Text("Good Morning!", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text("Diana Andrade", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                     }
                     Row(modifier = Modifier.align(Alignment.TopEnd)) {
-                        Icon(
-                            Icons.Filled.Search,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
+                        Icon(Icons.Filled.Search, contentDescription = null, tint = Color.White)
                     }
                 }
             }
 
-            // ── Albums LazyRow ──
+            // Albums title
             item {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        "Albums",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = TextOnLight
-                    )
+                    Text("Albums", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextOnLight)
                     Text("See more", color = MusicPurple, fontSize = 13.sp)
                 }
             }
 
+            // LazyRow Albums
             item {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -140,25 +123,19 @@ fun HomeScreen(onAlbumClick: (String) -> Unit) {
                 }
             }
 
-            // ── Recently Played LazyColumn ──
+            // Recently Played title
             item {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        "Recently Played",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = TextOnLight
-                    )
+                    Text("Recently Played", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextOnLight)
                     Text("See more", color = MusicPurple, fontSize = 13.sp)
                 }
             }
 
+            // Lista Recently Played
             items(albums) { album ->
                 RecentlyPlayedItem(album = album, onClick = {
                     miniPlayerAlbum = album
@@ -173,6 +150,7 @@ fun HomeScreen(onAlbumClick: (String) -> Unit) {
 
 @Composable
 fun AlbumCard(album: Album, onClick: () -> Unit) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .width(160.dp)
@@ -181,7 +159,10 @@ fun AlbumCard(album: Album, onClick: () -> Unit) {
             .clickable { onClick() }
     ) {
         AsyncImage(
-            model = album.image,
+            model = ImageRequest.Builder(context)
+                .data(album.imageUrl)
+                .crossfade(true)
+                .build(),
             contentDescription = album.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -196,24 +177,10 @@ fun AlbumCard(album: Album, onClick: () -> Unit) {
                     )
                 )
         )
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(10.dp)
-        ) {
-            Text(
-                album.title,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                album.artist,
-                color = Color.White.copy(alpha = 0.75f),
-                fontSize = 11.sp
-            )
+        Column(modifier = Modifier.align(Alignment.BottomStart).padding(10.dp)) {
+            Text(album.title, color = Color.White, fontWeight = FontWeight.Bold,
+                fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(album.artist, color = Color.White.copy(alpha = 0.75f), fontSize = 11.sp)
         }
         Box(
             modifier = Modifier
@@ -224,18 +191,15 @@ fun AlbumCard(album: Album, onClick: () -> Unit) {
                 .background(MusicPurple),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                Icons.Filled.PlayArrow,
-                contentDescription = "Play",
-                tint = Color.White,
-                modifier = Modifier.size(20.dp)
-            )
+            Icon(Icons.Filled.PlayArrow, contentDescription = "Play",
+                tint = Color.White, modifier = Modifier.size(20.dp))
         }
     }
 }
 
 @Composable
 fun RecentlyPlayedItem(album: Album, onClick: () -> Unit) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -246,13 +210,14 @@ fun RecentlyPlayedItem(album: Album, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = CardWhite)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
+            modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = album.image,
+                model = ImageRequest.Builder(context)
+                    .data(album.imageUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = album.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -261,19 +226,9 @@ fun RecentlyPlayedItem(album: Album, onClick: () -> Unit) {
             )
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    album.title,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    color = TextOnLight,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    "${album.artist} • Popular Song",
-                    color = TextSubtle,
-                    fontSize = 12.sp
-                )
+                Text(album.title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                    color = TextOnLight, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("${album.artist} • Popular Song", color = TextSubtle, fontSize = 12.sp)
             }
             Icon(Icons.Filled.MoreVert, contentDescription = null, tint = TextSubtle)
         }
